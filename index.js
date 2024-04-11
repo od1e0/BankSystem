@@ -1,11 +1,11 @@
 import express from 'express';
 import mongoose from 'mongoose';
 
-import { registerValidation } from './validations/auth.js';
+import { registerValidation } from './validations.js';
 
-import { checkAuth } from './utils/index.js';
+import { checkAuth, handleValidationErrors } from './utils/index.js';
 
-import { UserController } from './controllers/index.js';
+import { UserController, CardController } from './controllers/index.js';
 
 mongoose
   .connect(
@@ -19,10 +19,15 @@ const app = express();
 app.use(express.json());
 
 app.post('/auth/login', UserController.login);
-
 app.post('/auth/register', registerValidation, UserController.register);
-
 app.get('/auth/me', checkAuth, UserController.getMe);
+
+app.post(
+  '/cards',
+  checkAuth,
+  handleValidationErrors,
+  CardController.createCard
+);
 
 app.listen(1112, (err) => {
   if (err) {
