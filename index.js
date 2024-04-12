@@ -5,7 +5,11 @@ import { registerValidation } from './validations.js';
 
 import { checkAuth, handleValidationErrors } from './utils/index.js';
 
-import { UserController, CardController } from './controllers/index.js';
+import {
+  UserController,
+  CardController,
+  TransactionController,
+} from './controllers/index.js';
 
 mongoose
   .connect(
@@ -28,6 +32,21 @@ app.post(
   handleValidationErrors,
   CardController.createCard
 );
+app.get('/cards/:id', checkAuth, CardController.getCardByUserId);
+app.patch('/cards/:id', checkAuth, CardController.updateCardByUserId);
+app.delete('/cards/:id', checkAuth, CardController.deleteCardByUserId);
+
+app.get(
+  '/transactions/recent/:id',
+  checkAuth,
+  TransactionController.getRecentTransactions
+);
+app.get(
+  '/transactions/all/:id',
+  checkAuth,
+  TransactionController.getAllTransactions
+);
+app.post('/transactions/send/:id', checkAuth, TransactionController.sendMoney);
 
 app.listen(1112, (err) => {
   if (err) {

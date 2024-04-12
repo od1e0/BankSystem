@@ -1,4 +1,3 @@
-import jwt from 'jsonwebtoken';
 import CardModel from '../models/Card.js';
 
 export const createCard = async (req, res) => {
@@ -27,9 +26,9 @@ export const createCard = async (req, res) => {
   }
 };
 
-export const getCard = async (req, res) => {
+export const getCardByUserId = async (req, res) => {
   try {
-    const card = await CardModel.findById(req.params.id);
+    const card = await CardModel.findOne({ user: req.params.id });
 
     if (!card) {
       return res.status(404).json({
@@ -46,11 +45,24 @@ export const getCard = async (req, res) => {
   }
 };
 
-export const updateCard = async (req, res) => {
+export const updateCardByUserId = async (req, res) => {
   try {
-    const card = await CardModel.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const genCardNumber = Math.floor(Math.random(0, 10) * 10000000000000000);
+
+    const validity = new Date();
+    validity.setFullYear(validity.getFullYear() + 3);
+
+    const card = await CardModel.findOneAndUpdate(
+      { user: req.params.id },
+      {
+        ...req.body,
+        cardNumber: genCardNumber,
+        validity: validity,
+      },
+      {
+        new: true,
+      }
+    );
 
     if (!card) {
       return res.status(404).json({
@@ -67,9 +79,9 @@ export const updateCard = async (req, res) => {
   }
 };
 
-export const deleteCard = async (req, res) => {
+export const deleteCardByUserId = async (req, res) => {
   try {
-    const card = await CardModel.findByIdAndRemove(req.params.id);
+    const card = await CardModel.findOneAndDelete({ user: req.params.id });
 
     if (!card) {
       return res.status(404).json({
